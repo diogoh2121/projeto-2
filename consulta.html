@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Consulta de Itens Comprados</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin-top: 20px;
+            color: #333;
+        }
+
+        #consulta-form {
+            margin: 20px;
+        }
+
+        #cpfCnpj {
+            padding: 5px;
+        }
+
+        #resultado {
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .vertical-table {
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .vertical-table-row {
+            display: flex;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .vertical-table-label {
+            flex: 1;
+            font-weight: bold;
+        }
+
+        .vertical-table-data {
+            flex: 3;
+        }
+
+        /* Estilo para o botão de acessibilidade */
+        #toggle-accessibility {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #toggle-accessibility:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilo para as instruções de acessibilidade */
+        #accessibility-instructions {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Consulta de Itens Comprados</h1>
+
+    <!-- Botão de Ativação do Modo de Acessibilidade -->
+    <button id="toggle-accessibility">Ativar Modo de Acessibilidade</button>
+
+    <!-- Instruções de Acessibilidade -->
+    <p id="accessibility-instructions" style="display: none;">
+        Para ativar o Modo de Acessibilidade, pressione o atalho de teclado específico do seu sistema operacional ou dispositivo.
+    </p>
+
+    <form id="consulta-form">
+        <label for="cpfCnpj">CPF ou CNPJ:</label>
+        <input type="text" id="cpfCnpj" required>
+        <button type="submit">Consultar</button>
+    </form>
+
+    <!-- Local para exibir os resultados da consulta -->
+    <div id="resultado"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const consultaForm = document.getElementById('consulta-form');
+            const resultadoDiv = document.getElementById('resultado');
+            const toggleButton = document.getElementById('toggle-accessibility');
+            let accessibilityActive = false;
+            let speechSynthesis;
+
+            toggleButton.addEventListener('click', () => {
+                accessibilityActive = !accessibilityActive;
+                if (accessibilityActive) {
+                    toggleButton.textContent = "Desativar Modo de Acessibilidade";
+                    document.getElementById('accessibility-instructions').style.display = 'block';
+                } else {
+                    toggleButton.textContent = "Ativar Modo de Acessibilidade";
+                    document.getElementById('accessibility-instructions').style.display = 'none';
+                    if (speechSynthesis) {
+                        speechSynthesis.cancel();
+                    }
+                }
+            });
+
+            consultaForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const cpfCnpj = document.getElementById('cpfCnpj').value;
+
+                if (cpfCnpj.toLowerCase() === 'admin') {
+                    window.location.href = 'http://localhost:3000/admin?key=admin';
+                } else {
+                    fetch('/consultar', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ cpfCnpj })
+                    })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.length > 0) {
+                            resultadoDiv.innerHTML = `
+                                <h2>Itens Comprados por ${cpfCnpj}</h2>
+                                <div class="vertical-table">
+                                    ${data.map(item => `
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">CPF do Destinatário:</span>
+                                            <span class="vertical-table-data">${item.remetente_cpf_cnpj}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">Número da Encomenda:</span>
+                                            <span class="vertical-table-data">${item.numero_encomenda}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">Data:</span>
+                                            <span class="vertical-table-data">${formatDate(item.data)}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">Nome:</span>
+                                            <span class="vertical-table-data">${item.nome}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">Telefone:</span>
+                                            <span class="vertical-table-data">${item.telefone}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">Endereço:</span>
+                                            <span class="vertical-table-data">${item.endereco}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">E-mail:</span>
+                                            <span class="vertical-table-data">${item.email}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">Produto:</span>
+                                            <span class="vertical-table-data">${item.produto}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">Quantidade:</span>
+                                            <span class="vertical-table-data">${item.quantidade}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">Tipo:</span>
+                                            <span class="vertical-table-data">${item.tipo}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">Categoria:</span>
+                                            <span class="vertical-table-data">${item.categoria}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">Transporte:</span>
+                                            <span class="vertical-table-data">${item.transporte}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">CPF do Remetente:</span>
+                                            <span class="vertical-table-data">${item.destinatario_cpf_cnpj}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">Pagamento:</span>
+                                            <span class="vertical-table-data">${item.pagamento}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">Seguro Adicional:</span>
+                                            <span class="vertical-table-data">${item.seguro_adicional}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">Valor Total:</span>
+                                            <span class="vertical-table-data">${item.valor_total}</span>
+                                        </div>
+                                        <div class="vertical-table-row">
+                                            <span class="vertical-table-label">Prazo de Entrega:</span>
+                                            <span class="vertical-table-data">${formatDate(item.prazo_entrega)}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                            if (accessibilityActive) {
+                                speakContent(resultadoDiv.textContent);
+                            }
+                        } else {
+                            resultadoDiv.innerHTML = 'Nenhum item encontrado para este CPF/CNPJ.';
+                        }
+                    })
+                    .catch((error) => {
+                        resultadoDiv.innerHTML = 'CPF ou CNPJ não encontrado.';
+                    });
+                }
+            });
+
+            resultadoDiv.addEventListener('mouseover', (event) => {
+                if (accessibilityActive) {
+                    speakContent(event.target.textContent);
+                }
+            });
+
+            function speakContent(content) {
+                if ('speechSynthesis' in window) {
+                    speechSynthesis = window.speechSynthesis;
+                    const speech = new SpeechSynthesisUtterance(content);
+                    speechSynthesis.speak(speech);
+                } else {
+                    alert('Seu navegador não suporta a funcionalidade de leitura em voz alta.');
+                }
+            }
+
+            function formatDate(dateString) {
+                const options = { year: '2-digit', month: '2-digit', day: '2-digit' };
+                return new Date(dateString).toLocaleDateString('pt-BR', options);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Encomendas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            margin-top: 20px;
+            color: #333;
+        }
+
+        #encomenda-form {
+            margin: 20px auto;
+            width: 400px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 5px;
+            text-align: left;
+        }
+
+        #encomenda-form label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        #encomenda-form input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        #encomenda-form button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        #encomenda-form button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cadastro de Encomendas</h1>
+    <form id="encomenda-form" action="/cadastrar-encomenda" method="post">
+        <label for="remetente_cpf_cnpj">CPF ou CNPJ do Destinatário:</label>
+        <input type="text" id="remetente_cpf_cnpj" required>
+
+        <label for="numero_encomenda">Número da Encomenda:</label>
+        <input type="text" id="numero_encomenda" required>
+
+        <label for="data">Data:</label>
+        <input type="date" id="data" required>
+
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" required>
+
+        <label for="telefone">Telefone:</label>
+        <input type="tel" id="telefone" required>
+
+        <label for="endereco">Endereço:</label>
+        <input type="text" id="endereco" required>
+
+        <label for="email">E-mail:</label>
+        <input type="email" id="email" required>
+
+        <label for="produto">Produto:</label>
+        <input type="text" id="produto" required>
+
+        <label for="quantidade">Quantidade:</label>
+        <input type="number" id="quantidade" required>
+
+        <label for="tipo">Tipo:</label>
+        <input type="text" id="tipo" required>
+
+        <label for="categoria">Categoria:</label>
+        <input type="text" id="categoria" required>
+
+        <label for="transporte">Transporte:</label>
+        <input type="text" id="transporte" required>
+
+        <label for="destinatario_cpf_cnpj">CPF ou CNPJ do Remetente:</label>
+        <input type="text" id="destinatario_cpf_cnpj" required>
+
+        <label for="pagamento">Método de Pagamento:</label>
+        <input type="text" id="pagamento" required>
+
+        <label for="seguro_adicional">Seguro Adicional:</label>
+        <input type="text" id="seguro_adicional" required>
+
+        <label for="valor_total">Valor Total:</label>
+        <input type="text" id="valor_total" required>
+
+        <label for="prazo_entrega">Prazo de Entrega:</label>
+        <input type="text" id="prazo_entrega" required>
+
+        <button type="submit">Cadastrar Encomenda</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const encomendaForm = document.getElementById('encomenda-form');
+
+            encomendaForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const remetente_cpf_cnpj = document.getElementById('remetente_cpf_cnpj').value;
+                const numero_encomenda = document.getElementById('numero_encomenda').value;
+                const data = document.getElementById('data').value;
+                const nome = document.getElementById('nome').value;
+                const telefone = document.getElementById('telefone').value;
+                const endereco = document.getElementById('endereco').value;
+                const email = document.getElementById('email').value;
+                const produto = document.getElementById('produto').value;
+                const quantidade = document.getElementById('quantidade').value;
+                const tipo = document.getElementById('tipo').value;
+                const categoria = document.getElementById('categoria').value;
+                const transporte = document.getElementById('transporte').value;
+                const destinatario_cpf_cnpj = document.getElementById('destinatario_cpf_cnpj').value;
+                const pagamento = document.getElementById('pagamento').value;
+                const seguro_adicional = document.getElementById('seguro_adicional').value;
+                const valor_total = document.getElementById('valor_total').value;
+                const prazo_entrega = document.getElementById('prazo_entrega').value;
+
+                fetch('/cadastrar-encomenda', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                     body: JSON.stringify({
+                        remetente_cpf_cnpj,
+                        numero_encomenda,
+                        data,
+                        nome,
+                        telefone,
+                        endereco,
+                        email,
+                        produto,
+                        quantidade,
+                        tipo,
+                        categoria,
+                        transporte,
+                        destinatario_cpf_cnpj,
+                        pagamento,
+                        seguro_adicional,
+                        valor_total,
+                        prazo_entrega
+                     })
+                })
+                .then((response) => {
+                    if (response.ok) {
+                        alert('Encomenda cadastrada com sucesso.');
+                        encomendaForm.reset();
+                    } else {
+                        alert('Erro ao cadastrar encomenda.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
